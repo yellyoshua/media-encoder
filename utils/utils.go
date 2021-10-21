@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -66,12 +65,8 @@ func ParsePathWithPWD(directory string) string {
 }
 
 func ExistFolder(folder string) bool {
-
 	directory := ParsePathWithPWD(folder)
-	fmt.Println(directory)
-
 	_, err := os.Stat(directory)
-	fmt.Println(err)
 	return err == nil
 }
 

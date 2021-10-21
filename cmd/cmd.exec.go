@@ -32,7 +32,12 @@ func buildJSONCMD(cmd *cobra.Command, args []string) {
 	}
 
 	for _, f := range jsonfiles {
-		newMoviesList = append(newMoviesList, media.ProcessMovieStruct(f, OutFolderProcessedMedia))
+		movie, err := media.ProcessMovieStruct(f, OutFolderProcessedMedia)
+
+		if err == nil {
+			newMoviesList = append(newMoviesList, movie)
+		}
+
 	}
 
 	file, _ := json.MarshalIndent(newMoviesList, "", " ")

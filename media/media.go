@@ -1,6 +1,7 @@
 package media
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -34,7 +35,7 @@ func QualitiesFilter(q string) []string {
 	}
 }
 
-func ProcessMovieStruct(primitiveMovie MovieFile, out string) Movie {
+func ProcessMovieStruct(primitiveMovie MovieFile, out string) (Movie, error) {
 	qualitiesAllowed := []string{"1080", "720", "480"}
 	fileNamePaths := strings.Split(filepath.ToSlash(primitiveMovie.Filename), "/")
 	fullMovieName := fileNamePaths[len(fileNamePaths)-1]
@@ -76,12 +77,31 @@ func ProcessMovieStruct(primitiveMovie MovieFile, out string) Movie {
 		})
 	}
 
-	return Movie{
-		Filename:       utils.ParsePathWithPWD(primitiveMovie.Filename),
-		NewPath:        utils.ParsePathWithPWD(filepath.Join(out, movieWithNoExtension)),
-		NewFileName:    movieWithNoExtension,
-		MovieExtension: movieExtension,
-		CurrentQuality: currentQuality,
-		Quality:        quality,
+	if isOKMovieExtension(movieExtension) {
+		return Movie{
+			Filename:       utils.ParsePathWithPWD(primitiveMovie.Filename),
+			NewPath:        utils.ParsePathWithPWD(filepath.Join(out, movieWithNoExtension)),
+			NewFileName:    movieWithNoExtension,
+			MovieExtension: movieExtension,
+			CurrentQuality: currentQuality,
+			Quality:        quality,
+		}, nil
+	}
+
+	return Movie{}, errors.New("extension not allowed (allowed: mp4 and mkv)")
+}
+
+func isOKMovieExtension(extension string) bool {
+	switch extension {
+	case "mkv":
+		return true
+	case ".mkv":
+		return true
+	case ".mp4":
+		return true
+	case "mp4":
+		return true
+	default:
+		return false
 	}
 }
