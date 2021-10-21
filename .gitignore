@@ -1,5 +1,7 @@
 /out
 
+videncode
+videncode.exe
 *.json
 *.mp4
 *.mkv
