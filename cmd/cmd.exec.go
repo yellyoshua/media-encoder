@@ -62,6 +62,8 @@ func processMediaFromJSON(cmd *cobra.Command, args []string) {
 			}, movie)
 
 			exec.Run()
+
+			fmt.Println("--processed-file--")
 		}
 	}
 

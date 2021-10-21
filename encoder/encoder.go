@@ -25,6 +25,7 @@ type Process interface {
 
 type process struct {
 	output     string
+	filename   string
 	coder      *Coder
 	binaryExec string
 	cmd        []string
@@ -59,7 +60,7 @@ func (e *encoder) Command(coder Coder, movie media.Movie) Process {
 
 	cmd := []string{"-y", "-i", inputFile, "-preset", encodingPreset, "-crf", videoQuality, "-movflags", flagForOptimizeInBrowser, "-vf", scale, outputFile}
 
-	return &process{coder: &coder, output: movie.NewPath, binaryExec: binaryExec, cmd: cmd}
+	return &process{coder: &coder, output: movie.NewPath, filename: outputFileName, binaryExec: binaryExec, cmd: cmd}
 }
 
 func (p *process) Run() {
@@ -67,7 +68,7 @@ func (p *process) Run() {
 
 	cmd := exec.Command(p.binaryExec, p.cmd...)
 
-	fmt.Printf("Converting movie to %sp\n", p.coder.Resolution)
+	fmt.Printf("Converting movie: (%s)\n", p.filename)
 
 	// output command output
 	// fmt.Println(cmd.String())
@@ -84,9 +85,9 @@ func (p *process) Run() {
 		fmt.Println(stderr.String())
 	}
 
-	if err := cmd.Wait(); err != nil {
-		fmt.Println(err.Error())
-	}
+	// if err := cmd.Wait(); err != nil {
+	// 	fmt.Println(err.Error())
+	// }
 }
 
 // func commandBuilder(pwd string, mov media.Movie, outputScale string) (string, []string) {
