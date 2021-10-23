@@ -84,27 +84,4 @@ func (p *process) Run() {
 	if err != nil {
 		fmt.Println(stderr.String())
 	}
-
-	// if err := cmd.Wait(); err != nil {
-	// 	fmt.Println(err.Error())
-	// }
 }
-
-// func commandBuilder(pwd string, mov media.Movie, outputScale string) (string, []string) {
-// 	binaryExec := "ffmpeg"
-
-// 	inputFile := path.Join(pwd, mov.Filename)
-
-// 	encodingPreset := "slow"
-// 	videoQuality := "22"
-
-// 	flagForOptimizeInBrowser := "+faststart"
-
-// 	scale := fmt.Sprintf("scale=-2:%s", outputScale)
-
-// 	outputFileName := fmt.Sprintf("%s - [%sp].%s", mov.NewFileName, outputScale, mov.MovieExtension)
-
-// 	outputFile := path.Join(pwd, mov.NewPath, mov.NewFileName, outputFileName)
-
-// 	return binaryExec, []string{"-y", "-i", inputFile, "-preset", encodingPreset, "-crf", videoQuality, "-movflags", flagForOptimizeInBrowser, "-vf", scale, outputFile}
-// }
