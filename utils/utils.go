@@ -50,13 +50,15 @@ func ReadFile(filePath string) []byte {
 	return data
 }
 
-func DeepFolderCreate(folder string) {
+func DeepFolderCreate(folder string) error {
 	newpath := filepath.Join(folder)
 	err := os.MkdirAll(newpath, os.ModePerm)
 
 	if err != nil {
-		panic(err)
+		return nil
 	}
+
+	return nil
 }
 
 func ParsePathWithPWD(directory string) string {

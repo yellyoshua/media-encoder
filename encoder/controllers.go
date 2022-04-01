@@ -1,4 +1,4 @@
-package cmd
+package encoder
 
 import (
 	"encoding/json"
@@ -6,10 +6,34 @@ import (
 	"io/ioutil"
 
 	"github.com/spf13/cobra"
-	"github.com/yellyoshua/media-encoder/encoder"
+	"github.com/yellyoshua/media-encoder/exceptions"
 	"github.com/yellyoshua/media-encoder/media"
 	"github.com/yellyoshua/media-encoder/utils"
 )
+
+func DeepScanMoviesInFolder(inputFolder string) ([]VideoFile, error) {
+	var files []string
+	var videos []VideoFile
+	var err error
+
+	if !utils.ExistFolder(inputFolder) {
+		return videos, exceptions.NonExistFolderException(inputFolder)
+	}
+
+	files, err = utils.WalkFilesPath(inputFolder)
+	if err != nil {
+		return videos, err
+	}
+
+	filterVideos(&files, []string{
+		DOT_MKV,
+		DOT_MP4,
+	})
+
+	videos = recopileVideosDetails(files)
+
+	return videos, nil
+}
 
 func buildJSONCMD(cmd *cobra.Command, args []string) {
 	out := OutputMoviesJSONFile
@@ -43,28 +67,4 @@ func buildJSONCMD(cmd *cobra.Command, args []string) {
 	file, _ := json.MarshalIndent(newMoviesList, "", " ")
 
 	_ = ioutil.WriteFile(out, file, 0644)
-}
-
-func processMediaFromJSON(cmd *cobra.Command, args []string) {
-	var moviesList []media.Movie = make([]media.Movie, 0)
-	jsonFile := OutputMoviesJSONFile
-
-	if err := json.Unmarshal(utils.ReadFile(jsonFile), &moviesList); err != nil {
-		panic(err)
-	}
-
-	for _, movie := range moviesList {
-		for _, resolution := range movie.Quality {
-			exec := encoder.NewEncoder().Command(encoder.Coder{
-				Quality:    "22",
-				Resolution: resolution,
-				Preset:     "slow",
-			}, movie)
-
-			exec.Run()
-
-			fmt.Println("--processed-file--")
-		}
-	}
-
 }
