@@ -19,8 +19,8 @@ spec:
       containers:
       - name: "movies-k8s"
       # Use ffmpeg image
-        image: "jrottenberg/ffmpeg:4.1-alpine"
-        command: ["sh", "-c", "while true; do echo hello; sleep 10;done"]
+        image: "linuxserver/ffmpeg:latest"
+        entrypoint: ["/bin/sh"]
         resources:
           limits:
             cpu: 250m
