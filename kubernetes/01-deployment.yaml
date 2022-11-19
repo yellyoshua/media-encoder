@@ -1,0 +1,33 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "movies-k8s"
+  namespace: "default"
+  labels:
+    app: "movies-k8s"
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: "movies-k8s"
+  template:
+    metadata:
+      labels:
+        app: "movies-k8s"
+    spec:
+      containers:
+      - name: "movies-k8s"
+      # Use ffmpeg image
+        image: "jrottenberg/ffmpeg:4.1-alpine"
+        command: ["sh", "-c", "while true; do echo hello; sleep 10;done"]
+        resources:
+          limits:
+            cpu: 250m
+            memory: 500m
+            ephemeral-storage: 10Gi
+          requests:
+            cpu: 250m
+            memory: 500m
+            ephemeral-storage: 10Gi
+            
