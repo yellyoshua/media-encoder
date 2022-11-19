@@ -1,14 +1,14 @@
 ## Videncode - Media Encoder (with ffmpeg)
 
-#### `Powered by yellyoshua `
-
-<a href="https://www.buymeacoffee.com/yellyoshua" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174" ></a>
-
----
-
 ##### (With2 easy steps) - Build JSON with folder of videos > Process the videos to the new folder or the same
 
 Read the folders with a lot of videos and export to .json file and process the .json for encode the videos
+
+---
+
+#### `Powered by yellyoshua `
+
+<a href="https://www.buymeacoffee.com/yellyoshua" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41" width="174" ></a>
 
 ---
 
