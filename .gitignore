@@ -1,8 +1,13 @@
-/out
+/tmp
 
 videncode
 videncode.exe
 *.json
+!package.json
+!package-lock.json
 *.mp4
 *.mkv
 *.html
+
+.env
+node_modules

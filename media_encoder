@@ -1,0 +1,23 @@
+#!/bin/env node
+require('dotenv').config();
+const mongoose = require('mongoose');
+const scannerController = require('./controllers/scanner.controller');
+const garbageCollectorController = require('./controllers/garbageCollector.controller');
+const processController = require('./controllers/process.controller');
+
+async function app () {
+	await mongoose.connect(process.env.DATABASE_URL, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true
+	});
+  await scannerController();
+	await processController();
+	await garbageCollectorController();
+	process.exit(0);
+}
+
+app()
+.catch((err) => {
+	console.error(err);
+	process.exit(1);
+});

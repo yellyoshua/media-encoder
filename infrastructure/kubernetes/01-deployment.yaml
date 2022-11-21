@@ -1,0 +1,32 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "media-encoder"
+  namespace: "default"
+  labels:
+    app: "media-encoder"
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: "media-encoder"
+  template:
+    metadata:
+      labels:
+        app: "media-encoder"
+    spec:
+      containers:
+      - name: "media-encoder"
+        image: "yellyoshua/media_encoder:latest"
+        env:
+          - name: ONEDRIVE_AUTHORIZATION_TOKEN
+            value: "authorization_token"
+          - name: DATABASE_URL
+            value: "database_url"
+        resources:
+          limits:
+            cpu: 5
+            memory: 500m
+            ephemeral-storage: 10Gi
+            

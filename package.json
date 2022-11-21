@@ -1,0 +1,27 @@
+{
+  "name": "yellyoshua_media_encoder",
+  "version": "1.0.0",
+  "description": "#### `Powered by yellyoshua `",
+  "main": "index.js",
+  "scripts": {
+    "start": "./media_encoder"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yellyoshua/media-encoder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yellyoshua/media-encoder/issues"
+  },
+  "homepage": "https://github.com/yellyoshua/media-encoder#readme",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "form-data": "^4.0.0",
+    "mongoose": "^6.7.2",
+    "node-fetch": "^2.6.7",
+    "underscore": "^1.13.6"
+  }
+}
