@@ -4,16 +4,68 @@ const mongoose = require('mongoose');
 const scannerController = require('./controllers/scanner.controller');
 const garbageCollectorController = require('./controllers/garbageCollector.controller');
 const processController = require('./controllers/process.controller');
+const claimTokenController = require('./controllers/claimToken.controller');
+const refreshTokenController = require('./controllers/refreshToken.controller');
+const cinemaQueueController = require('./controllers/cinemaQueue.controller');
+const signalsController = require('./controllers/signals.controller');
+const downloadController = require('./controllers/download.controller');
+const uploadController = require('./controllers/upload.controller');
+const updateDriveIdController = require('./controllers/updateDriveId.controller');
+const errorController = require('./controllers/error.controller');
+const command = process.argv[2];
 
 async function app () {
 	await mongoose.connect(process.env.DATABASE_URL, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	});
-  await scannerController();
-	await processController();
-	await garbageCollectorController();
-	process.exit(0);
+
+  if (command === 'claimToken') {
+    await claimTokenController();
+    return process.exit(0);
+  }
+
+  let token = await refreshTokenController();
+  await scannerController(token);
+
+  const movie = await cinemaQueueController();
+  signalsController(movie);
+
+  try {
+    logMovieStep(movie, 'Downloading');
+    token = await refreshTokenController();
+    const movieInfo = await downloadController(movie, token);
+
+    logMovieStep(movie, 'Processing');
+    token = await refreshTokenController();
+    const proccessedFilePath = await processController(movieInfo, token);
+
+    logMovieStep(movie, 'Uploading');
+    token = await refreshTokenController();
+    const drivePath = await uploadController(movieInfo, proccessedFilePath, token);
+
+    logMovieStep(movie, 'Updating drive id');
+    token = await refreshTokenController();
+    await updateDriveIdController(movie, drivePath, token);
+
+    logMovieStep(movie, 'Cleaning up');
+    token = await refreshTokenController();
+    await garbageCollectorController(token);
+
+    logMovieStep(movie, 'Done');
+
+    return process.exit(0);
+  } catch (e) {
+    logMovieStep(movie, 'Error');
+    console.error(e);
+    await errorController(movie);
+
+    return process.exit(1);
+  }
+}
+
+function logMovieStep(movie, step) {
+	console.log(`${step} movie: (${movie._id}) - ${movie.title}`);
 }
 
 app()

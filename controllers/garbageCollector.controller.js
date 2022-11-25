@@ -6,14 +6,14 @@ const client = new OneDrive();
 
 const enableCleanup = false;
 
-module.exports = async function garbageCollector() {
+module.exports = async function garbageCollector(token) {
 	const movies = await cinemaModel.find({ status: 'pending_cleanup' }, null, {lean: true});
 
 	const promises = _(movies).map(async (movie) => {
 		try {
 			if (enableCleanup) {
 				await cinemaModel.findOneAndUpdate({ _id: movie._id }, { status: 'cleaning' });
-				await client.deleteItem(movie.prev_onedrive_id);
+				await client.deleteItem(movie.prev_onedrive_id, token.access_token);
 				await cinemaModel.findOneAndUpdate({ _id: movie._id }, { status: 'done' });
 			}
 		} catch (err) {

@@ -20,10 +20,12 @@ spec:
       - name: "media-encoder"
         image: "yellyoshua/media_encoder:latest"
         env:
-          - name: ONEDRIVE_AUTHORIZATION_TOKEN
-            value: "authorization_token"
           - name: DATABASE_URL
             value: "database_url"
+          - name: ONE_DRIVE_CLIENT_ID
+            value: "one_drive_client_id"
+          - name: ONE_DRIVE_CLIENT_SECRET
+            value: "one_drive_client_secret"
         resources:
           limits:
             cpu: 5

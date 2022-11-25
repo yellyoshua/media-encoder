@@ -5,10 +5,10 @@ const driveItem = require('../lib/driveItem.js');
 
 const client = new OneDrive();
 
-module.exports = async function scannerController() {
+module.exports = async function scannerController(token) {
 	const [movies_folder, new_movies_folder] = await Promise.all([
-		client.getFolderItems('24F25D0D0E6CE181!11538'),
-		client.getFolderItems('24F25D0D0E6CE181!14163')
+		client.getFolderItems('24F25D0D0E6CE181!11538', token.access_token),
+		client.getFolderItems('24F25D0D0E6CE181!14163', token.access_token)
 	]);
 
 	const movies = driveItem.onlyVideoFiles(
