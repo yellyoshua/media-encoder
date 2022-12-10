@@ -1,3 +1,4 @@
+const path = require('path');
 const cinemaModel = require('../models/cinema.model');
 const OneDrive = require('../lib/onedrive.js');
 
