@@ -32,31 +32,33 @@ async function app () {
   signalsController(movie);
 
   try {
-    logMovieStep(movie, 'Downloading');
+    logMovieStep('Starting processing', movie, true);
+
+    logMovieStep('Downloading', movie);
     token = await refreshTokenController();
     const movieInfo = await downloadController(movie, token);
 
-    logMovieStep(movie, 'Processing');
+    logMovieStep('Processing', movie);
     token = await refreshTokenController();
-    const proccessedFilePath = await processController(movieInfo, token);
+    movieInfo.proccessedFilePath = await processController(movieInfo, token);
 
-    logMovieStep(movie, 'Uploading');
+    logMovieStep('Uploading', movie);
     token = await refreshTokenController();
-    const drivePath = await uploadController(movieInfo, proccessedFilePath, token);
+    const drivePath = await uploadController(movieInfo, token);
 
-    logMovieStep(movie, 'Updating drive id');
+    logMovieStep('Updating drive id', movie);
     token = await refreshTokenController();
     await updateDriveIdController(movie, drivePath, token);
 
-    logMovieStep(movie, 'Cleaning up');
+    logMovieStep('Cleaning up', movie);
     token = await refreshTokenController();
-    await garbageCollectorController(token);
+    await garbageCollectorController(movieInfo, token);
 
-    logMovieStep(movie, 'Done');
+    logMovieStep('Done', movie);
 
     return process.exit(0);
   } catch (e) {
-    logMovieStep(movie, 'Error');
+    logMovieStep('Error', movie);
     console.error(e);
     await errorController(movie);
 
@@ -64,8 +66,8 @@ async function app () {
   }
 }
 
-function logMovieStep(movie, step) {
-	console.log(`\n${step} movie: (${movie._id}) - ${movie.title}`);
+function logMovieStep(step, movie, show_title = false) {
+  console.log(`\n${step} movie: (${movie._id}) ${show_title ? `- ${movie.title}` : '' }`);
 }
 
 app()

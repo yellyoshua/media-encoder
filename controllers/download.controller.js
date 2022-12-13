@@ -7,7 +7,7 @@ const getMovieInfo = require('../lib/getMovieInfo');
 const client = new OneDrive();
 
 module.exports = async function downloadController (movie, token) {
-  const downloaded_file_path = path.join(__dirname, '../tmp', 'movie' + movie.ext);
+  const downloaded_file_path = path.join(__dirname, '../tmp', movie.filename + '_download_' + movie.ext);
 	fs.mkdirSync(path.dirname(downloaded_file_path), { recursive: true });
 
   const movieInfo = await getMovieInfo(downloaded_file_path);

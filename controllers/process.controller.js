@@ -4,7 +4,7 @@ const utils = require('../utils');
 const getMovieInfo = require('../lib/getMovieInfo');
 
 module.exports = async function processController ({frames, downloaded_file_path, filename}, token) {
-  const proccessedFilePath = path.join(__dirname, '../tmp', `${filename}.mp4`);
+  const proccessedFilePath = path.join(__dirname, '../tmp', movie.filename + '_processed_.mp4');
   const isNotProccessed = await compareMovieInfo(downloaded_file_path, proccessedFilePath);
   const command = `ffmpeg -i "${downloaded_file_path}" -c:v libx264 -preset veryfast -crf 23 -c:a copy -movflags faststart -y -stats -v error "${proccessedFilePath}"`;
 
