@@ -1,17 +1,34 @@
 const path = require('path');
 const exec = require('child_process').exec;
 const utils = require('../utils');
+const getMovieInfo = require('../lib/getMovieInfo');
 
 module.exports = async function processController ({frames, downloaded_file_path, filename}, token) {
   const proccessedFilePath = path.join(__dirname, '../tmp', `${filename}.mp4`);
+  const isNotProccessed = await compareMovieInfo(downloaded_file_path, proccessedFilePath);
   const command = `ffmpeg -i "${downloaded_file_path}" -c:v libx264 -preset veryfast -crf 23 -c:a copy -movflags faststart -y -stats -v error "${proccessedFilePath}"`;
 
-  await ffmpegProcess(command, (output) => {
-    const progress = parseFfmpegOutput(output);
-    utils.stdoutProgress(progress.frame, frames);
-  });
+  if (isNotProccessed) {
+    await ffmpegProcess(command, (output) => {
+      const progress = parseFfmpegOutput(output);
+      utils.stdoutProgress(progress.frame, frames);
+    });
+  }
 
   return proccessedFilePath;
+}
+
+async function compareMovieInfo(downloadedMoviePath, proccessedMoviePath) {
+  const downloadedMovieInfo = await getMovieInfo(downloadedMoviePath);
+  const proccessedMovieInfo = await getMovieInfo(proccessedMoviePath);
+  const isDurationEqual = equalWithoutDecimal(downloadedMovieInfo?.duration, proccessedMovieInfo?.duration);
+  return !isDurationEqual;
+}
+
+function equalWithoutDecimal(number1, number2) {
+  const number1WithoutDecimal = String(number1).split('.')[0];
+  const number2WithoutDecimal = String(number2).split('.')[0];
+  return number1WithoutDecimal === number2WithoutDecimal;
 }
 
 function ffmpegProcess(command, progressCallback, interval = 1000) {

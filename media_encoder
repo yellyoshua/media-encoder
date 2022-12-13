@@ -65,7 +65,7 @@ async function app () {
 }
 
 function logMovieStep(movie, step) {
-	console.log(`${step} movie: (${movie._id}) - ${movie.title}`);
+	console.log(`\n${step} movie: (${movie._id}) - ${movie.title}`);
 }
 
 app()
