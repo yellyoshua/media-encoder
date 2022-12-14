@@ -1,4 +1,5 @@
 require('dotenv').config();
+const _ = require('underscore');
 const mongoose = require('mongoose');
 const scannerController = require('./controllers/scanner.controller');
 const garbageCollectorController = require('./controllers/garbageCollector.controller');
@@ -32,47 +33,49 @@ async function app () {
     return process.exit(0);
   }
 
-  const movie = await cinemaQueueController();
-  signalsController(movie);
+  const media = await cinemaQueueController();
+  signalsController(media);
 
   try {
-    logStep('Starting processing', movie, true);
+    logStep('Starting processing', media, true);
 
-    logStep('Downloading', movie);
+    logStep('Downloading', media);
     token = await refreshTokenController();
-    const movieInfo = await downloadController(movie, token);
+    const mediaInfo = await downloadController(media, token);
 
-    logStep('Processing', movie);
+    _(media).extend(mediaInfo);
+
+    logStep('Processing', media);
     token = await refreshTokenController();
-    movieInfo.proccessedFilePath = await processController(movieInfo, token);
+    media.proccessedFilePath = await processController(media, token);
 
-    logStep('Uploading', movie);
+    logStep('Uploading', media);
     token = await refreshTokenController();
-    const drivePath = await uploadController(movieInfo, token);
+    const drivePath = await uploadController(media, token);
 
-    logStep('Updating drive id', movie);
+    logStep('Updating drive id', media);
     token = await refreshTokenController();
-    await updateDriveIdController(movie, drivePath, token);
+    await updateDriveIdController(media, drivePath, token);
 
-    logStep('Cleaning up', movie);
+    logStep('Cleaning up', media);
     token = await refreshTokenController();
-    await garbageCollectorController(movieInfo, token);
+    await garbageCollectorController(media, token);
 
-    logStep('Done', movie);
+    logStep('Done', media);
 
     return process.exit(0);
   } catch (e) {
-    logStep('Error', movie);
+    logStep('Error', media);
     console.error(e);
-    await errorController(movie);
+    await errorController(media);
 
     return process.exit(1);
   }
 }
 
-function logStep(step, movie, show_title = false) {
-  if (movie) {
-    console.log(`\n${step} movie: (${movie._id}) ${show_title ? `- ${movie.title}` : '' }`);
+function logStep(step, media, show_title = false) {
+  if (media) {
+    console.log(`\n${step} ${media.kind}: (${media._id}) ${show_title ? `- ${media.title}` : '' }`);
     return;
   }
 
