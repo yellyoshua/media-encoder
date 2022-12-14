@@ -1,10 +1,12 @@
 const cinemaModel = require('../models/cinema.model');
 const errorManager = require('../lib/errorManager');
+const deleteMediaFiles = require('../lib/deleteMediaFiles');
 
-module.exports = function signalsController(movie) {
+module.exports = function signalsController(media) {
   process.on('SIGINT', async function() {
 		console.log("\nCaught interrupt signal");
-    await errorManager.onInterruptMovie(movie, cinemaModel);
+    await errorManager.onInterruptMedia(media, cinemaModel);
+    deleteMediaFiles(media);
 		process.exit(1);
 	});
 }

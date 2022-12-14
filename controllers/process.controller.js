@@ -3,10 +3,10 @@ const exec = require('child_process').exec;
 const utils = require('../utils');
 const getMovieInfo = require('../lib/getMovieInfo');
 
-module.exports = async function processController ({frames, downloaded_file_path, filename}, token) {
-  const proccessedFilePath = path.join(__dirname, '../tmp', movie.filename + '_processed_.mp4');
-  const isNotProccessed = await compareMovieInfo(downloaded_file_path, proccessedFilePath);
-  const command = `ffmpeg -i "${downloaded_file_path}" -c:v libx264 -preset veryfast -crf 23 -c:a copy -movflags faststart -y -stats -v error "${proccessedFilePath}"`;
+module.exports = async function processController ({frames, downloadedFilePath, filename}, token) {
+  const proccessedFilePath = path.join(__dirname, '../tmp', filename + '_processed_.mp4');
+  const isNotProccessed = await compareMediaInfo(downloadedFilePath, proccessedFilePath);
+  const command = `ffmpeg -i "${downloadedFilePath}" -c:v libx264 -preset veryfast -crf 23 -c:a copy -movflags faststart -y -stats -v error "${proccessedFilePath}"`;
 
   if (isNotProccessed) {
     await ffmpegProcess(command, (output) => {
@@ -18,10 +18,10 @@ module.exports = async function processController ({frames, downloaded_file_path
   return proccessedFilePath;
 }
 
-async function compareMovieInfo(downloadedMoviePath, proccessedMoviePath) {
-  const downloadedMovieInfo = await getMovieInfo(downloadedMoviePath);
-  const proccessedMovieInfo = await getMovieInfo(proccessedMoviePath);
-  const isDurationEqual = equalWithoutDecimal(downloadedMovieInfo?.duration, proccessedMovieInfo?.duration);
+async function compareMediaInfo(downloadedMediaPath, proccessedMediaPath) {
+  const downloadedMediaInfo = await getMovieInfo(downloadedMediaPath);
+  const proccessedMediaInfo = await getMovieInfo(proccessedMediaPath);
+  const isDurationEqual = equalWithoutDecimal(downloadedMediaInfo?.duration, proccessedMediaInfo?.duration);
   return !isDurationEqual;
 }
 

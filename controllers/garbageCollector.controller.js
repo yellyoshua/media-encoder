@@ -2,6 +2,7 @@ const fs = require('fs');
 const _ = require('underscore');
 const cinemaModel = require('../models/cinema.model');
 const OneDrive = require('../lib/onedrive.js');
+const deleteMediaFiles = require('../lib/deleteMediaFiles');
 
 const client = new OneDrive();
 
@@ -17,7 +18,8 @@ module.exports = async function garbageCollector(movieInfo, token) {
 				await client.deleteItem(movie.prev_onedrive_id, token.access_token);
 				await cinemaModel.findOneAndUpdate({ _id: movie._id }, { status: 'done' });
 			}
-      fs.unlinkSync(movieInfo.downloaded_file_path);
+
+      deleteMediaFiles(movie);
 		} catch (err) {
 			await cinemaModel.findOneAndUpdate({ _id: movie._id }, { status: 'pending_cleanup' });
 			console.log(err);
