@@ -18,11 +18,13 @@
   },
   "homepage": "https://github.com/yellyoshua/media-encoder#readme",
   "dependencies": {
+    "axios": "^1.2.1",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "form-data": "^4.0.0",
     "mongoose": "^6.7.2",
     "node-fetch": "^2.6.7",
+    "progress-stream": "^2.0.0",
     "underscore": "^1.13.6"
   }
 }
