@@ -9,7 +9,7 @@ module.exports = async function uploadFile (uploadUrl, mediaPath, partIndex = 0)
   const isLastPart = partIndex === partSplit - 1;
 
   process.stdout.clearLine(0);
-  process.stdout.write(`${25 * partIndex}%\r`);
+  process.stdout.write(`${(100 * (partIndex + 1) / partSplit).toFixed(2)}%\r`);
 
   const partSize = Math.ceil(totalSize / partSplit);
   const partStart = partIndex * partSize;
