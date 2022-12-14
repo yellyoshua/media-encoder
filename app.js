@@ -1,4 +1,3 @@
-#!/bin/env node
 require('dotenv').config();
 const mongoose = require('mongoose');
 const scannerController = require('./controllers/scanner.controller');

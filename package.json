@@ -4,7 +4,7 @@
   "description": "#### `Powered by yellyoshua `",
   "main": "index.js",
   "scripts": {
-    "start": "./media_encoder"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
