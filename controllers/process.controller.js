@@ -5,7 +5,7 @@ const utils = require('../utils');
 
 module.exports = async function processController ({frames, downloadedFilePath, filename}, token) {
   const proccessedFilePath = path.join(__dirname, '../tmp', filename + '_processed_.mp4');
-  const command = `ffmpeg -i "${downloadedFilePath}" -c:v libx264 -preset fast -crf 23 -c:a copy -movflags faststart -y -stats -v error "${proccessedFilePath}"`;
+  const command = `ffmpeg -i "${downloadedFilePath}" -c:v libx264 -preset veryfast -crf 23 -c:a copy -movflags faststart -y -stats -v error "${proccessedFilePath}"`;
   const isNotProccessed = !fs.existsSync(proccessedFilePath);
 
   if (isNotProccessed) {
