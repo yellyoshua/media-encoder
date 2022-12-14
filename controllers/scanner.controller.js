@@ -17,7 +17,6 @@ const seriesPathId = [
 const client = new OneDrive();
 
 module.exports = async function scannerController(token) {
-  await cinemaModel.collection.drop();
   const movies = await scanMovies(token);
   const series = await scanSeries(token);
 
@@ -31,12 +30,6 @@ module.exports = async function scannerController(token) {
 		const mediaAlreadyInDb = _(mediaFilesAlreadyInDb).findWhere({ prev_onedrive_id: media.id });
 		return !mediaAlreadyInDb;
 	});
-
-  const blabla = _(mediaFilesToInsert).filter((media) => {
-    return media.kind === 'serie';
-  });
-
-  console.log(blabla);
 
 	const promises = _(mediaFilesToInsert).map((media) => {
     const {extension, quality, title} = getFilenameInfo(media.title);
