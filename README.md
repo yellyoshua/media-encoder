@@ -25,3 +25,9 @@ Read the folder that contains .mp4 and .mkv video extension, and create a .json 
 - After that JSON file be created, you must run the following command:
 
     `videncode process -i <.json generated>`
+
+- Requirements:
+
+    - apt install mkvtoolnix
+    - apt install ffmpeg
+    - apt install ffprobe

@@ -4,7 +4,7 @@ const OneDrive = require('../lib/onedrive.js');
 const client = new OneDrive();
 
 module.exports = async function uploadController(media, token) {
-  const mediaFileName = media.filename + media.ext;
+  const mediaFileName = media.filename + '.mp4';
   const newMediaDrivePath = generateDrivePath(media, mediaFileName, '/movies-server/media');
 
   await client.uploadItem(
