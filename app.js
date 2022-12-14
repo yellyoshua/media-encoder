@@ -63,6 +63,14 @@ async function app () {
 
     logStep('Done', media);
 
+    if (command === 'batch') {
+      console.log('');
+      console.log('----------------------------------------')
+      console.log('---- Starting next batch processing ----')
+      console.log('----------------------------------------')
+      return app();
+    }
+
     return process.exit(0);
   } catch (e) {
     logStep('Error', media);
