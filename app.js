@@ -25,39 +25,44 @@ async function app () {
   }
 
   let token = await refreshTokenController();
-  await scannerController(token);
+
+  if (command === 'scan') {
+    logStep('Scanning');
+    await scannerController(token);
+    return process.exit(0);
+  }
 
   const movie = await cinemaQueueController();
   signalsController(movie);
 
   try {
-    logMovieStep('Starting processing', movie, true);
+    logStep('Starting processing', movie, true);
 
-    logMovieStep('Downloading', movie);
+    logStep('Downloading', movie);
     token = await refreshTokenController();
     const movieInfo = await downloadController(movie, token);
 
-    logMovieStep('Processing', movie);
+    logStep('Processing', movie);
     token = await refreshTokenController();
     movieInfo.proccessedFilePath = await processController(movieInfo, token);
 
-    logMovieStep('Uploading', movie);
+    logStep('Uploading', movie);
     token = await refreshTokenController();
     const drivePath = await uploadController(movieInfo, token);
 
-    logMovieStep('Updating drive id', movie);
+    logStep('Updating drive id', movie);
     token = await refreshTokenController();
     await updateDriveIdController(movie, drivePath, token);
 
-    logMovieStep('Cleaning up', movie);
+    logStep('Cleaning up', movie);
     token = await refreshTokenController();
     await garbageCollectorController(movieInfo, token);
 
-    logMovieStep('Done', movie);
+    logStep('Done', movie);
 
     return process.exit(0);
   } catch (e) {
-    logMovieStep('Error', movie);
+    logStep('Error', movie);
     console.error(e);
     await errorController(movie);
 
@@ -65,8 +70,13 @@ async function app () {
   }
 }
 
-function logMovieStep(step, movie, show_title = false) {
-  console.log(`\n${step} movie: (${movie._id}) ${show_title ? `- ${movie.title}` : '' }`);
+function logStep(step, movie, show_title = false) {
+  if (movie) {
+    console.log(`\n${step} movie: (${movie._id}) ${show_title ? `- ${movie.title}` : '' }`);
+    return;
+  }
+
+  console.log(`\n${step}`);
 }
 
 app()

@@ -1,73 +1,113 @@
+const fs = require('fs');
 const _ = require('underscore');
 const cinemaModel = require('../models/cinema.model');
 const OneDrive = require('../lib/onedrive.js');
 const driveItem = require('../lib/driveItem.js');
+const getFilenameInfo = require('../lib/getFilenameInfo');
+
+const moviesPathId = [
+  '24F25D0D0E6CE181!11538',
+  '24F25D0D0E6CE181!14163'
+];
+
+const seriesPathId = [
+  '24F25D0D0E6CE181!11537'
+];
 
 const client = new OneDrive();
 
 module.exports = async function scannerController(token) {
-	const [movies_folder, new_movies_folder] = await Promise.all([
-		client.getFolderItems('24F25D0D0E6CE181!11538', token.access_token),
-		client.getFolderItems('24F25D0D0E6CE181!14163', token.access_token)
-	]);
+  await cinemaModel.collection.drop();
+  const movies = await scanMovies(token);
+  const series = await scanSeries(token);
 
-	const movies = driveItem.onlyVideoFiles(
-		_(movies_folder).union(new_movies_folder)
-	);
+  const mediaFiles = _(movies).union(series);
 
-	const moviesAlreadyInDb = await cinemaModel.find({
-		prev_onedrive_id: { $in: _(movies).pluck('id') }
+	const mediaFilesAlreadyInDb = await cinemaModel.find({
+    prev_onedrive_id: { $in: _(mediaFiles).pluck('id') }
 	}, null, {lean: true});
 
-	const moviesToInsert = _(movies).filter((movie) => {
-		const movieAlreadyInDb = _(moviesAlreadyInDb).findWhere({ prev_onedrive_id: movie.id });
-		return !movieAlreadyInDb;
+	const mediaFilesToInsert = _(mediaFiles).filter((media) => {
+		const mediaAlreadyInDb = _(mediaFilesAlreadyInDb).findWhere({ prev_onedrive_id: media.id });
+		return !mediaAlreadyInDb;
 	});
 
-	const promises = _(moviesToInsert).map((movie) => {
-		const newMovie = new cinemaModel({
-			title: movie.title,
-			prev_onedrive_id: movie.id,
-			filename: parse_title(movie.title),
-			filehash: movie.filehash,
-			ext: get_extension(movie.title),
-			quality: get_quality(movie.title),
+  const blabla = _(mediaFilesToInsert).filter((media) => {
+    return media.kind === 'serie';
+  });
+
+  console.log(blabla);
+
+	const promises = _(mediaFilesToInsert).map((media) => {
+    const {extension, quality, title} = getFilenameInfo(media.title);
+
+		const newMedia = new cinemaModel({
+			title: media.title,
+			prev_onedrive_id: media.id,
+			filename: title,
+			filehash: media.filehash,
+      serie: media.serie,
+      season: media.season,
+      kind: media.kind,
+			ext: extension,
+			quality: quality,
 			status: 'pending'
 		});
 
-		return newMovie.save();
+		return newMedia.save();
 	});
 
 	await Promise.all(promises);
 }
 
-function parse_title (filename) {
-	const to_lower = filename.toLowerCase();
-	const witout_extension = to_lower.replace(/\.[^/.]+$/, '');
-	const without_underscore = witout_extension.replace(/_/g, ' ');
-	const witout_quality_p = without_underscore.replace(/(1080p|720p|480p|360p)/, ' ');
-	const witout_quality = witout_quality_p.replace(/(1080|720|480|360)/, ' ');
-	const witout_slashes = witout_quality.replace(/\//g, ' ');
-	const witout_dots = witout_slashes.replace(/\./g, ' ');
-	const witout_minus = witout_dots.replace(/-/g, ' ');
-	const witout_brands = witout_minus.replace(/(@streaminglatino)/, ' ');
-	const witout_language = witout_brands.replace(/(latino|español|espanol|subtitulado)/, ' ');
-	const witout_spaces = witout_language.replace(/\s+/g, '_');
-	const witout_last_underscore = witout_spaces.replace(/_$/, '');
-	return witout_last_underscore;
+async function scanMovies(token) {
+  const promises = _(moviesPathId).map((pathId) => {
+    return client.getFolderItems(pathId, token.access_token);
+  });
+
+  const mediaLists = await Promise.all(promises);
+
+  const mediaFiles = _(mediaLists).flatten();
+  const taggedMedia = tagMedia(mediaFiles, 'movie');
+
+  return driveItem.filterVideoFiles(taggedMedia);
 }
 
-function get_extension (filename) {
-	const extension = filename.match(/(\.[a-z0-9]+)$/);
-	return extension ? extension[0] : null;
+async function scanSeries(token) {
+  const promises = _(seriesPathId).map(async (pathId) => {
+    const seriesList = await client.getFolderItems(pathId, token.access_token);
+
+    const seriesWithSeasons = await Promise.all(_(seriesList).map(async (serie) => {
+      const seasons = await client.getFolderItems(serie.id, token.access_token);
+
+      const seasonsWithEpisodes = await Promise.all(_(seasons).map(async (season) => {
+        const episodes = await client.getFolderItems(season.id, token.access_token);
+
+        return _(episodes).map((episode) => {
+          return {
+            ...episode,
+            serie: serie.title,
+            season: season.title,
+          };
+        });
+      }));
+
+      return _(seasonsWithEpisodes).flatten();
+    }));
+
+    return _(seriesWithSeasons).flatten();
+  });
+
+  const mediaLists = await Promise.all(promises);
+
+  const mediaFiles = _(mediaLists).flatten();
+  const taggedMedia = tagMedia(mediaFiles, 'serie');
+
+  return driveItem.filterVideoFiles(taggedMedia);
 }
 
-function get_quality (filename) {
-	const quality_p = filename.match(/(1080p|720p|480p|360p)/);
-	const quality = filename.match(/(1080|720|480|360)/);
-	return quality_p
-		? quality_p[0]
-		: quality
-		? quality[0]
-		: null;
+function tagMedia(mediaFiles, tag) {
+  return _(mediaFiles).map((mediaFile) => {
+    return _(mediaFile).extend({ kind: tag});
+  });
 }

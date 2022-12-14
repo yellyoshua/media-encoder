@@ -21,6 +21,19 @@ const cinemaSchema = new mongoose.Schema({
 		type: String,
 		default: null,
 	},
+  serie: {
+    type: String,
+    default: null,
+  },
+  season: {
+    type: String,
+    default: null,
+  },
+  kind: {
+    enum: ['movie', 'serie'],
+    type: String,
+    required: true,
+  },
 	ext: {
 		type: String,
 		default: null,
