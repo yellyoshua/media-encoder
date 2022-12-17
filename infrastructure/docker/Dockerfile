@@ -7,6 +7,8 @@ RUN apt-get update -yq && apt-get install \
 		curl \
 		wget \
 		build-essential \
+    mkvtoolnix \
+    ffprobe \
 		ffmpeg \
 		dbus -yq
 

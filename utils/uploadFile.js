@@ -1,5 +1,6 @@
 const axios = require('axios').default;
 const fs = require('fs');
+const utils = require('../utils');
 
 const partSplit = 6;
 
@@ -8,8 +9,8 @@ module.exports = async function uploadFile (uploadUrl, mediaPath, partIndex = 0)
 
   const isLastPart = partIndex === partSplit - 1;
 
-  process.stdout.clearLine(0);
-  process.stdout.write(`${(100 * (partIndex + 1) / partSplit).toFixed(2)}%\r`);
+  const progressPercent = (100 * (partIndex) / partSplit).toFixed(2);
+  utils.progress(progressPercent);
 
   const partSize = Math.ceil(totalSize / partSplit);
   const partStart = partIndex * partSize;
@@ -30,5 +31,6 @@ module.exports = async function uploadFile (uploadUrl, mediaPath, partIndex = 0)
     return uploadFile(uploadUrl, mediaPath, partIndex + 1);
   }
 
+  utils.progress(100);
   return response.data;
 }

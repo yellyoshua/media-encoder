@@ -33,11 +33,11 @@ async function app () {
     return process.exit(0);
   }
 
-  const media = await cinemaQueueController();
+  const {media, pending} = await cinemaQueueController();
   signalsController(media);
 
   try {
-    logStep('Starting processing', media, true);
+    logStep('Starting processing', {...media, pending}, true);
 
     logStep('Downloading', media);
     token = await refreshTokenController();
@@ -62,16 +62,6 @@ async function app () {
     await garbageCollectorController(media, token);
 
     logStep('Done', media);
-
-    if (command === 'batch') {
-      console.log('');
-      console.log('----------------------------------------')
-      console.log('---- Starting next batch processing ----')
-      console.log('----------------------------------------')
-      return app();
-    }
-
-    return process.exit(0);
   } catch (e) {
     logStep('Error', media);
     console.error(e);
@@ -79,15 +69,31 @@ async function app () {
 
     return process.exit(1);
   }
+
+  if (command === 'batch') {
+    console.log('');
+    console.log('----------------------------------------')
+    console.log('---- Starting next batch processing ----')
+    console.log('----------------------------------------')
+    return app();
+  }
+
+  return process.exit(0);
 }
 
 function logStep(step, media, show_title = false) {
+  const messageParts = [`\n${step}`];
   if (media) {
-    console.log(`\n${step} ${media.kind}: (${media._id}) ${show_title ? `- ${media.title}` : '' }`);
-    return;
+    const mediaTitle = show_title ? `- ${media.title}` : '' 
+    messageParts.push(` ${media.kind}: (${media._id}) ${mediaTitle}`);
+    if (media.pending) {
+      messageParts.push('\n');
+      messageParts.push(`Queue: ${media.pending} pending`);
+    }
   }
 
-  console.log(`\n${step}`);
+  const message = messageParts.join('');
+  console.log(message);
 }
 
 app()

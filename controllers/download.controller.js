@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const exec = require('child_process').exec;
 const cinemaModel = require('../models/cinema.model');
 const OneDrive = require('../lib/onedrive.js');
 const getMovieInfo = require('../lib/getMovieInfo');
