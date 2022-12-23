@@ -2,10 +2,17 @@ const axios = require('axios').default;
 const fs = require('fs');
 const utils = require('../utils');
 
-const partSplit = 6;
+/**
+  *  The size of each byte range MUST be a multiple of 320 KiB (327,680 bytes)
+  *  https://docs.microsoft.com/en-us/graph/api/driveitem-createuploadsession?view=graph-rest-1.0&tabs=http
+  * 
+  */
+
+let partSplit;
 
 module.exports = async function uploadFile (uploadUrl, mediaPath, partIndex = 0) {
   const totalSize = fs.statSync(mediaPath).size;
+  partSplit = Math.ceil(totalSize / (327680 * 1000));
 
   const isLastPart = partIndex === partSplit - 1;
 

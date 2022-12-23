@@ -19,10 +19,10 @@ module.exports = async function uploadController(media, token) {
 
 function generateDrivePath(media, mediaFileName, parentPath) {
   if (media.kind === 'serie') {
-    return path.join(parentPath, media.serie, media.season, mediaFileName);
+    return path.join(parentPath, media.kind, media.serie, media.season, mediaFileName);
   }
 
-  return path.join(parentPath, media.title, mediaFileName);
+  return path.join(parentPath, media.kind, media.title, mediaFileName);
 }
 
 function filePathEncode(filePath) {
